@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { motion } from "framer-motion";
@@ -18,8 +18,8 @@ function Dashboard() {
     navigate("/");
   };
 
-  // Fetch profile
-  const fetchProfile = async () => {
+  // Fetch profile (FIX: wrapped in useCallback)
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await API.get("/auth/profile");
       setUser(res.data);
@@ -27,10 +27,10 @@ function Dashboard() {
       console.error(err);
       logout();
     }
-  };
+  }, [navigate]);
 
-  // Fetch tasks
-  const fetchTasks = async () => {
+  // Fetch tasks (FIX: wrapped in useCallback)
+  const fetchTasks = useCallback(async () => {
     try {
       const res = await API.get("/tasks");
       setTasks(res.data);
@@ -39,9 +39,9 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Create task
+  // Create task (NO CHANGE)
   const createTask = async () => {
     if (!newTask.trim()) return;
 
@@ -57,7 +57,7 @@ function Dashboard() {
     }
   };
 
-  // Delete task
+  // Delete task (NO CHANGE)
   const deleteTask = async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
@@ -67,13 +67,13 @@ function Dashboard() {
     }
   };
 
-  // Load data
+  // Load data (FIX: dependencies added)
   useEffect(() => {
     fetchProfile();
     fetchTasks();
-  }, []);
+  }, [fetchProfile, fetchTasks]);
 
-  // Filter tasks
+  // Filter tasks (NO CHANGE)
   const filteredTasks = tasks.filter(task =>
     task.title?.toLowerCase().includes(search.toLowerCase())
   );
