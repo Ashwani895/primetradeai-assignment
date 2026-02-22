@@ -12,7 +12,7 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // ✅ FIX: wrap logout in useCallback
+  // Logout
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     navigate("/");
@@ -39,7 +39,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []); // safe because setState functions are stable
 
   // Create task
   const createTask = async () => {
@@ -50,7 +50,7 @@ function Dashboard() {
         title: newTask,
       });
 
-      setTasks([res.data, ...tasks]);
+      setTasks(prev => [res.data, ...prev]);
       setNewTask("");
     } catch (err) {
       console.error(err);
@@ -61,7 +61,7 @@ function Dashboard() {
   const deleteTask = async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
-      setTasks(tasks.filter(task => task._id !== id));
+      setTasks(prev => prev.filter(task => task._id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -81,6 +81,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
 
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
 
         <div>
@@ -99,6 +100,7 @@ function Dashboard() {
 
       </div>
 
+      {/* Add Task */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -125,6 +127,7 @@ function Dashboard() {
 
       </motion.div>
 
+      {/* Search */}
       <input
         placeholder="Search tasks..."
         value={search}
@@ -132,6 +135,7 @@ function Dashboard() {
         className="w-full p-3 rounded-lg bg-black/40 border border-gray-700 mb-4 outline-none"
       />
 
+      {/* Tasks List */}
       <div className="space-y-3">
 
         {loading ? (
