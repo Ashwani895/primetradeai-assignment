@@ -12,13 +12,13 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Logout
-  const logout = () => {
+  // ✅ FIX: wrap logout in useCallback
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     navigate("/");
-  };
+  }, [navigate]);
 
-  // Fetch profile (FIX: wrapped in useCallback)
+  // Fetch profile
   const fetchProfile = useCallback(async () => {
     try {
       const res = await API.get("/auth/profile");
@@ -27,9 +27,9 @@ function Dashboard() {
       console.error(err);
       logout();
     }
-  }, [navigate]);
+  }, [logout]);
 
-  // Fetch tasks (FIX: wrapped in useCallback)
+  // Fetch tasks
   const fetchTasks = useCallback(async () => {
     try {
       const res = await API.get("/tasks");
@@ -41,7 +41,7 @@ function Dashboard() {
     }
   }, []);
 
-  // Create task (NO CHANGE)
+  // Create task
   const createTask = async () => {
     if (!newTask.trim()) return;
 
@@ -57,7 +57,7 @@ function Dashboard() {
     }
   };
 
-  // Delete task (NO CHANGE)
+  // Delete task
   const deleteTask = async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
@@ -67,13 +67,13 @@ function Dashboard() {
     }
   };
 
-  // Load data (FIX: dependencies added)
+  // Load data
   useEffect(() => {
     fetchProfile();
     fetchTasks();
   }, [fetchProfile, fetchTasks]);
 
-  // Filter tasks (NO CHANGE)
+  // Filter tasks
   const filteredTasks = tasks.filter(task =>
     task.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -81,7 +81,6 @@ function Dashboard() {
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
 
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
 
         <div>
@@ -100,7 +99,6 @@ function Dashboard() {
 
       </div>
 
-      {/* Add Task */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -127,7 +125,6 @@ function Dashboard() {
 
       </motion.div>
 
-      {/* Search */}
       <input
         placeholder="Search tasks..."
         value={search}
@@ -135,7 +132,6 @@ function Dashboard() {
         className="w-full p-3 rounded-lg bg-black/40 border border-gray-700 mb-4 outline-none"
       />
 
-      {/* Tasks List */}
       <div className="space-y-3">
 
         {loading ? (
