@@ -12,13 +12,13 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // ✅ logout wrapped in useCallback
+  // Logout
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     navigate("/");
   }, [navigate]);
 
-  // ✅ fetchProfile depends on logout
+  // Fetch profile
   const fetchProfile = useCallback(async () => {
     try {
       const res = await API.get("/auth/profile");
@@ -29,7 +29,7 @@ function Dashboard() {
     }
   }, [logout]);
 
-  // ✅ fetchTasks does NOT need logout
+  // Fetch tasks
   const fetchTasks = useCallback(async () => {
     try {
       const res = await API.get("/tasks");
@@ -41,8 +41,8 @@ function Dashboard() {
     }
   }, []);
 
-  // ✅ createTask fixed dependency issue
-  const createTask = useCallback(async () => {
+  // Create task
+  const createTask = async () => {
     if (!newTask.trim()) return;
 
     try {
@@ -50,29 +50,30 @@ function Dashboard() {
         title: newTask,
       });
 
-      setTasks(prev => [res.data, ...prev]);
+      setTasks((prev) => [res.data, ...prev]);
       setNewTask("");
     } catch (err) {
       console.error(err);
     }
-  }, [newTask]);
+  };
 
-  // ✅ deleteTask fixed dependency issue
-  const deleteTask = useCallback(async (id) => {
+  // Delete task
+  const deleteTask = async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
-      setTasks(prev => prev.filter(task => task._id !== id));
+      setTasks((prev) => prev.filter(task => task._id !== id));
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  };
 
-  // ✅ useEffect dependencies correct
+  // Load data
   useEffect(() => {
     fetchProfile();
     fetchTasks();
   }, [fetchProfile, fetchTasks]);
 
+  // Filter tasks
   const filteredTasks = tasks.filter(task =>
     task.title?.toLowerCase().includes(search.toLowerCase())
   );
