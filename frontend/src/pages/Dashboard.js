@@ -12,13 +12,13 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Logout
+  // ✅ logout wrapped in useCallback
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     navigate("/");
   }, [navigate]);
 
-  // Fetch profile
+  // ✅ fetchProfile depends on logout
   const fetchProfile = useCallback(async () => {
     try {
       const res = await API.get("/auth/profile");
@@ -29,7 +29,7 @@ function Dashboard() {
     }
   }, [logout]);
 
-  // Fetch tasks
+  // ✅ fetchTasks does NOT need logout
   const fetchTasks = useCallback(async () => {
     try {
       const res = await API.get("/tasks");
@@ -39,10 +39,10 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []); // safe because setState functions are stable
+  }, []);
 
-  // Create task
-  const createTask = async () => {
+  // ✅ createTask fixed dependency issue
+  const createTask = useCallback(async () => {
     if (!newTask.trim()) return;
 
     try {
@@ -55,25 +55,24 @@ function Dashboard() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [newTask]);
 
-  // Delete task
-  const deleteTask = async (id) => {
+  // ✅ deleteTask fixed dependency issue
+  const deleteTask = useCallback(async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
       setTasks(prev => prev.filter(task => task._id !== id));
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
-  // Load data
+  // ✅ useEffect dependencies correct
   useEffect(() => {
     fetchProfile();
     fetchTasks();
   }, [fetchProfile, fetchTasks]);
 
-  // Filter tasks
   const filteredTasks = tasks.filter(task =>
     task.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -81,7 +80,6 @@ function Dashboard() {
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
 
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
 
         <div>
@@ -100,7 +98,6 @@ function Dashboard() {
 
       </div>
 
-      {/* Add Task */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -127,7 +124,6 @@ function Dashboard() {
 
       </motion.div>
 
-      {/* Search */}
       <input
         placeholder="Search tasks..."
         value={search}
@@ -135,7 +131,6 @@ function Dashboard() {
         className="w-full p-3 rounded-lg bg-black/40 border border-gray-700 mb-4 outline-none"
       />
 
-      {/* Tasks List */}
       <div className="space-y-3">
 
         {loading ? (
