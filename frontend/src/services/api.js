@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://primetradeai-assignment-67t9.onrender.com/api",
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 // Attach token automatically
